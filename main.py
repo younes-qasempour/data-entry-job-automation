@@ -1,9 +1,8 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from dotenv import load_dotenv
+from selenium.webdriver.common.by import By
 import requests
 import time
-
 
 
 def clean_price(price_str):
@@ -11,7 +10,6 @@ def clean_price(price_str):
     cleaned = price_str.replace(',', '').replace('+', '').replace('/mo', '').replace(' 1 bd', '').replace(' 1bd', '')
     # Return only the dollar sign and digits
     return f"${cleaned[1:]}"
-
 
 
 class DataEntryJob:
@@ -33,55 +31,22 @@ class DataEntryJob:
             self.addresses.append(article.find("address").text.strip())
 
     def fill_form(self):
-        form_link = (
-            "https://docs.google.com/forms/d/e/1FAIpQLSfQ4xoX6iEQNl2Ap"
-            "9h8OyV_HGdjzV7x442tQpIiprwFE9793g/viewform?usp=header")
-        self.driver.get(form_link)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        for item in range(len(self.links)):
+            form_link = (
+                "https://docs.google.com/forms/d/e/1FAIpQLSfQ4xoX6iEQNl2Ap"
+                "9h8OyV_HGdjzV7x442tQpIiprwFE9793g/viewform?usp=header")
+            self.driver.get(form_link)
+            time.sleep(5)
+            address_entry = self.driver.find_element(By.XPATH, "(//input[@type='text'])[1]")
+            price_entry = self.driver.find_element(By.XPATH, "(//input[@type='text'])[2]")
+            link_entry = self.driver.find_element(By.XPATH, "(//input[@type='text'])[3]")
+            address_entry.send_keys(self.addresses[item])
+            price_entry.send_keys(self.prices[item])
+            link_entry.send_keys(self.links[item])
+            time.sleep(1)
+            self.driver.find_element(By.XPATH, "(//span[@class='l4V7wb Fxmcue'])[1]").click()
 
 
 bot = DataEntryJob()
 bot.get_data()
-
-
-
-# TODO 2: https://docs.google.com/forms/u/0/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+bot.fill_form()
